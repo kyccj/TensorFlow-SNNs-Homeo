@@ -8,19 +8,22 @@ import os
 #os.environ['NCCL_P2P_DISABLE']='1'
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
 os.environ["NCCL_P2P_DISABLE"]="0"
-os.environ["CUDA_VISIBLE_DEVICES"]='1'
+os.environ["CUDA_VISIBLE_DEVICES"]='4'
 #
 from config import config
 conf = config.flags
 
 # conf.debug_mode = True
 
-# conf.debug_mode = True
+conf.debug_mode = True
 conf.save_best_model_only = True
 conf.save_models_max_to_keep = 1
 
+conf.DF_all = True
+conf.DF_all_step = 1
+
 ######
-conf.root_model_save = '/data2/kyccj/S_all_layer/1/'
+conf.root_model_save = '/data2/kyccj/S_all_layer/3/'
 # conf.name_model_load= '/home/ssparknas/240907_ms_inf/resnet/'
 # conf.name_model_load= '/home/ssparknas/240907_ms_inf/ms/'
 # conf.name_model_load= '/home/ssparknas/240907_ms_inf/ours_ms/'
@@ -85,7 +88,7 @@ conf.SEL_en = 'base'
 # conf.SEL_en = 'ours'
 
 # conf.num_train_data = 100
-# conf.SEL_model_dataset = 'V16_C10'
+conf.SEL_model_dataset = 'V16_C10'
 # conf.SEL_model_dataset = 'V16_C100'
 # conf.SEL_model_dataset = 'V16_DVS'
 # conf.SEL_model_dataset = 'R19_C10'
@@ -97,7 +100,7 @@ conf.SEL_en = 'base'
 # conf.SEL_model_dataset = 'MS34_ImageNet'
 # conf.SEL_model_dataset = '34_ImageNet'
 # conf.SEL_model_dataset = 'Spik_C10'
-conf.SEL_model_dataset = 'Spik_C100'
+# conf.SEL_model_dataset = 'Spik_C100'
 # conf.SEL_model_dataset = 'Spik_Img'
 # conf.SEL_model_dataset = 'Spik_DVS'
 

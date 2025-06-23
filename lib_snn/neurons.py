@@ -68,6 +68,7 @@ class Neuron(tf.keras.layers.Layer):
         self.fires = tf.ones(self.dim, dtype=self._dtype)
 
         self.depth = depth
+        self.alpha = None
 
         #
         self.num_neurons = tf.cast(tf.divide(tf.reduce_prod(self.dim),self.dim[0]),dtype=tf.float32)
@@ -1145,6 +1146,24 @@ class Neuron(tf.keras.layers.Layer):
                 im = im**2
                 im = tf.reduce_mean(im)
                 self.add_loss(conf.im_k*im)
+        if conf.DF_all:
+            if len(self.dim)==4:
+                B,H,W,C = self.dim[0], self.dim[1], self.dim[2], self.dim[3]
+                sc = self.spike_count
+                sc = tf.reshape(sc, shape=[B,H*W,C])
+                sc_l2 = tf.sqrt(tf.reduce_sum(tf.square(sc), axis=[1]))
+                sc_l = sc_l2
+                sc_l = tf.expand_dims(sc_l, -1)
+                sct = tf.transpose(sc, perm=[0, 2, 1])
+                sc_l_mat = sc_l @ tf.transpose(sc_l, perm=[0, 2, 1])
+                mc_sc = tf.math.divide_no_nan(tf.abs(sct @ sc), sc_l_mat)
+                mc_sc = tf.reduce_mean(mc_sc, axis=[1, 2])
+                mc_sc_mean = tf.reduce_mean(mc_sc)
+                mc_sc_mean = tf.broadcast_to(mc_sc_mean, shape=(B,))
+                self.alpha = mc_sc_mean
+
+
+
         #if True:
         #if False:
         if conf.reg_spike_out:
