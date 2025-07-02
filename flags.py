@@ -897,7 +897,9 @@ flags.DEFINE_float('reg_psp_SEL_BN_ratio_rate',1,'regularization - psp - BN_beta
 
 #all-layer
 flags.DEFINE_bool('DF_all',False,'')
-flags.DEFINE_float('DF_all_step',1,'regularization - psp - entropy_SEL')
+flags.DEFINE_float('DF_all_loss_weight',1,'')
+flags.DEFINE_float('DF_all_true_weight',1,'')
+flags.DEFINE_float('DF_all_false_weight',1,'')
 # RMP-loss
 
 flags.DEFINE_bool('rmp_en',False,'rmp-loss enable')

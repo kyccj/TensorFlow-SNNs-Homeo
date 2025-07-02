@@ -148,7 +148,7 @@ class Activation(keras.engine.base_layer.Layer):
         self.built = True
 
     #
-    def call(self, inputs, training=None):
+    def call(self, inputs, training=None,beta=None,gamma=None):
     #def call(self, inputs):
 
         if training is None:
@@ -163,7 +163,7 @@ class Activation(keras.engine.base_layer.Layer):
         else:
             #print(self.name)
             #ret = self.act(inputs, training)
-            ret = self.act(inputs)
+            ret = self.act(inputs,beta=beta,gamma=gamma)
 
         if self.en_record_output:
             self.record_output_func(ret)

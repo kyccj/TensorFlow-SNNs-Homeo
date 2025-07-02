@@ -8,22 +8,24 @@ import os
 #os.environ['NCCL_P2P_DISABLE']='1'
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
 os.environ["NCCL_P2P_DISABLE"]="0"
-os.environ["CUDA_VISIBLE_DEVICES"]='4'
+os.environ["CUDA_VISIBLE_DEVICES"]='1'
 #
 from config import config
 conf = config.flags
 
 # conf.debug_mode = True
 
-conf.debug_mode = True
+# conf.debug_mode = True
 conf.save_best_model_only = True
 conf.save_models_max_to_keep = 1
 
 conf.DF_all = True
-conf.DF_all_step = 1
+conf.DF_all_loss_weight = 0.1
+conf.DF_all_true_weight = 0.8
+conf.DF_all_false_weight = 0.5
 
 ######
-conf.root_model_save = '/data2/kyccj/S_all_layer/3/'
+conf.root_model_save = '/data2/kyccj/S_all_layer/0'
 # conf.name_model_load= '/home/ssparknas/240907_ms_inf/resnet/'
 # conf.name_model_load= '/home/ssparknas/240907_ms_inf/ms/'
 # conf.name_model_load= '/home/ssparknas/240907_ms_inf/ours_ms/'

@@ -759,7 +759,7 @@ class Neuron(tf.keras.layers.Layer):
         # return out_ret, grad
         return out_ret
 
-    def call(self, inputs, training=None):
+    def call(self, inputs, training=None,beta=None,gamma=None):
 
         if conf.verbose_snn_train:
             self.inputs_t = inputs
@@ -1157,10 +1157,17 @@ class Neuron(tf.keras.layers.Layer):
                 sct = tf.transpose(sc, perm=[0, 2, 1])
                 sc_l_mat = sc_l @ tf.transpose(sc_l, perm=[0, 2, 1])
                 mc_sc = tf.math.divide_no_nan(tf.abs(sct @ sc), sc_l_mat)
-                mc_sc = tf.reduce_mean(mc_sc, axis=[1, 2])
+                mc_sc = tf.reduce_mean(mc_sc, axis=[1])
+                mc_sc = tf.reduce_mean(mc_sc, axis=[0])
                 mc_sc_mean = tf.reduce_mean(mc_sc)
-                mc_sc_mean = tf.broadcast_to(mc_sc_mean, shape=(B,))
-                self.alpha = mc_sc_mean
+                mc_sc_mean = tf.broadcast_to(mc_sc_mean, shape=(C,))
+                if beta is not None:
+                    alpha = beta/(gamma+conf.reg_psp_eps)
+                    mask = tf.greater_equal(mc_sc,mc_sc_mean)
+                    alpha = tf.where(mask,alpha*conf.DF_all_true_weight,alpha*conf.DF_all_false_weight)
+                    loss = lib_snn.layers.l2_norm(beta/(gamma+conf.reg_psp_eps)-alpha,self.name)
+                    loss = conf.DF_all_loss_weight * loss
+                    self.add_loss(loss)
 
 
 

@@ -3458,6 +3458,7 @@ class Model(tf.keras.Model):
                             glb_t()
                     else:
                         glb_t.reset()
+                        prev_layer = nodes_by_depth[depth+1][0].layer
                         for t in range(1,self.conf.time_step+1):
 
                             if isinstance(layer_in,list) :
@@ -3465,7 +3466,14 @@ class Model(tf.keras.Model):
                             else:
                                 _layer_in = layer_in.read(t-1)
 
-                            _layer_out = node.layer(_layer_in)
+                            if not isinstance(prev_layer,lib_snn.layers.BatchNormalization):
+                                _layer_out = node.layer(_layer_in)
+                            else:
+                                prev_layer_name = prev_layer.name
+                                prev_gamma = self.get_layer(prev_layer_name).gamma
+                                prev_beta = self.get_layer(prev_layer_name).beta
+                                _layer_out = node.layer(_layer_in,beta = prev_beta, gamma=prev_gamma)
+
                             #print(node.layer.name)
 
                             if t-1==0:
