@@ -894,6 +894,9 @@ flags.DEFINE_float('reg_psp_SEL_BN_beta_const',0.6,'regularization - psp - BN_be
 flags.DEFINE_float('reg_psp_SEL_BN_beta_rate',1,'regularization - psp - BN_beta_add_loss_rate')
 flags.DEFINE_float('reg_psp_SEL_BN_ratio_value',1,'regularization - psp - BN_beta_add_loss_rate')
 flags.DEFINE_float('reg_psp_SEL_BN_ratio_rate',1,'regularization - psp - BN_beta_add_loss_rate')
+#Homeo-all_layer
+flags.DEFINE_bool('cal_correlation',False,'')
+flags.DEFINE_float('cal_correlation_weight',1,'regularization - psp - BN_beta_add_loss_rate')
 
 #all-layer
 flags.DEFINE_bool('DF_all',False,'')

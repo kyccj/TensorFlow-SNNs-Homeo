@@ -1188,6 +1188,9 @@ def set_file_path(batch_size):
             else:
                 config_name += '_r-psp-ma-'+str(conf.reg_psp_const)+'_'+str(conf.reg_psp_eps)
 
+        if conf.cal_correlation:
+            config_name += '_cor-' + str(conf.cal_correlation_weight)
+
         if conf.en_stdp_pathway:
             config_name += '_sp-'+str(conf.stdp_pathway_weight)
 
@@ -1221,6 +1224,17 @@ def set_file_path(batch_size):
     if conf.name_model_save=='':
         path_model_save = os.path.join(root_model_save, model_dataset_name)
         filepath_save = os.path.join(path_model_save, config_name)
+        if conf.mode=='train':
+            if os.path.exists(filepath_save):
+                folders = [d for d in os.listdir(filepath_save) if os.path.isdir(os.path.join(filepath_save,d))]
+                num_folders = str(len(folders))
+                os.makedirs(filepath_save+'/'+num_folders,exist_ok=True)
+                filepath_save = os.path.join(filepath_save,num_folders)
+            else:
+                os.makedirs(filepath_save+'/'+str(0),exist_ok=True)
+                filepath_save = os.path.join(filepath_save, str(0))
+        else:
+            pass
     else:
         path_model_save = conf.name_model_save
         filepath_save = path_model_save

@@ -145,6 +145,7 @@ class Layer():
             fused = self.conf.tf_fused_bn
 
             self.bn = layers_new.batch_normalization.BatchNormalization(epsilon=1.001e-5,en_tdbn=tdbn,fused=fused)
+            self.bn_layer = layers_new.batch_normalization.BatchNormalization(epsilon=1.001e-5, en_tdbn=tdbn, fused=fused)
 
             #self.bn = lib_snn.layers_new.BatchNormalization(epsilon=1.0)
         else:

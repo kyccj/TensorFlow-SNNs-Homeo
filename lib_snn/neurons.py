@@ -26,14 +26,13 @@ conf = config.flags
 # class Neuron(tf.layers.Layer):
 # loc: neuron location - 'IN'(input), 'HID'(hidden), 'OUT'(output)
 class Neuron(tf.keras.layers.Layer):
-    def __init__(self, dim, conf_legacy, n_type, neural_coding, depth=0, loc='HID', vth=None, name='', **kwargs):
+    def __init__(self, dim, conf_legacy, n_type, neural_coding,  depth=0, loc='HID', vth=None, name='', **kwargs):
 
         # def __init__(self, dim, n_type, fan_in, conf, neural_coding, depth=0, name='', **kwargs):
         # super(Neuron, self).__init__(name="")
         super(Neuron, self).__init__(name=name, **kwargs)
 
         self.init_done = False
-
         self.dim = dim
         self.dim_wo_batch = self.dim[1:]
         #self.dim_one_batch = [1 , ] +dim[1:]
@@ -172,6 +171,9 @@ class Neuron(tf.keras.layers.Layer):
 
         # debug surrogate grad
         if conf.debug_surro_grad:
+        #if False:
+            self.writer = tf.summary.create_file_writer(config.path_tensorboard)
+        if conf.DF_all:
         #if False:
             self.writer = tf.summary.create_file_writer(config.path_tensorboard)
 
@@ -1122,6 +1124,23 @@ class Neuron(tf.keras.layers.Layer):
             if t < conf.time_step:
                 self.vth = self.vth.write(t,vth)
 
+        if conf.cal_correlation:
+            if t == 4:
+                if self.spike_count.shape.rank == 4:
+                    B,H,W,C = self.spike_count.shape[0], self.spike_count.shape[1], self.spike_count.shape[2], self.spike_count.shape[3]
+                    sc = self.spike_count
+                    sc = tf.reshape(sc, shape=[B,H*W, C])
+                    sc_l2 = tf.sqrt(tf.reduce_sum(tf.square(sc), axis=[1]))
+                    sc_l = sc_l2
+                    sc_l = tf.expand_dims(sc_l,-1)
+                    sct = tf.transpose(sc,perm=[0,2,1])
+                    sc_l_mat = sc_l @ tf.transpose(sc_l,perm=[0,2,1])
+                    mc_sc = tf.math.divide_no_nan(tf.abs(sct @ sc),sc_l_mat)
+                    mc_sc_mean = tf.reduce_mean(mc_sc,axis=[1,2])
+                    mc_sc_mean = tf.reduce_mean(mc_sc_mean)
+                    self.add_loss(conf.cal_correlation_weight*mc_sc_mean)
+
+
 
         if conf.rmp_en:
             if t == 4:
@@ -1147,6 +1166,13 @@ class Neuron(tf.keras.layers.Layer):
                 im = tf.reduce_mean(im)
                 self.add_loss(conf.im_k*im)
         if conf.DF_all:
+            def write_params_DF(beta_val, gamma_val, sc_val, sc_mean_val):
+                with self.writer.as_default(step=lib_snn.model.train_counter):
+                    tf.summary.histogram(f"{self.name}_beta_dist", beta_val)
+                    tf.summary.histogram(f"{self.name}_gamma_dist", gamma_val)
+                    tf.summary.histogram(f"{self.name}_sc_dist", sc_val)
+                    tf.summary.scalar(f"{self.name}_sc_mean", sc_mean_val)
+                    self.writer.flush()
             if len(self.dim)==4:
                 B,H,W,C = self.dim[0], self.dim[1], self.dim[2], self.dim[3]
                 sc = self.spike_count
@@ -1160,6 +1186,7 @@ class Neuron(tf.keras.layers.Layer):
                 mc_sc = tf.reduce_mean(mc_sc, axis=[1])
                 mc_sc = tf.reduce_mean(mc_sc, axis=[0])
                 mc_sc_mean = tf.reduce_mean(mc_sc)
+                mc_sc_mean_1 = tf.reduce_mean(mc_sc)
                 mc_sc_mean = tf.broadcast_to(mc_sc_mean, shape=(C,))
                 if beta is not None:
                     alpha = beta/(gamma+conf.reg_psp_eps)
@@ -1168,6 +1195,7 @@ class Neuron(tf.keras.layers.Layer):
                     loss = lib_snn.layers.l2_norm(beta/(gamma+conf.reg_psp_eps)-alpha,self.name)
                     loss = conf.DF_all_loss_weight * loss
                     self.add_loss(loss)
+                    tf.py_function(write_params_DF, [beta, gamma, mc_sc,mc_sc_mean_1],[])
 
 
 
