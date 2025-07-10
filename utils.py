@@ -1143,7 +1143,7 @@ def set_file_path(batch_size):
         # regularization
         reg_spike_str='_r-'
         if conf.DF_all :
-            reg_spike_str += 'DF_a' + '-lw_' + str(conf.DF_all_loss_weight) + '-tw_' + str(conf.DF_all_true_weight) + '-fw_' + str(conf.DF_all_false_weight)
+            reg_spike_str += 'DF_a' + '-lw_' + str(conf.DF_all_loss_weight) + '-tw_' + str(conf.DF_all_true_weight) + '-fw_' + str(conf.DF_all_false_weight)+ '-'+conf.DF_all_loss
             config_name += reg_spike_str+'-'+str(conf.reg_spike_out_const)+'_'+str(conf.reg_spike_out_alpha)
         if conf.reg_spike_out:
             if conf.reg_spike_out_sc:

@@ -15,14 +15,19 @@ conf = config.flags
 
 # conf.debug_mode = True
 
-# conf.debug_mode = True
+conf.debug_mode = True
 conf.save_best_model_only = True
 conf.save_models_max_to_keep = 1
 
 conf.DF_all = True
+# conf.DF_all_debug = True
+conf.DF_all_loss ='L1'
+# conf.DF_all_loss ='L2'
+# conf.DF_all_loss ='MSE'
+# conf.DF_all_loss ='Huber'
 conf.DF_all_loss_weight = 0.1
-conf.DF_all_true_weight = 1.8
-conf.DF_all_false_weight = 2
+conf.DF_all_true_weight = 1.3
+conf.DF_all_false_weight = 1.5
 
 ######
 conf.root_model_save = '/mnt/hdd1/kyccj/S_all_layer/1'

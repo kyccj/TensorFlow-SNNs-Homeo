@@ -3474,6 +3474,7 @@ class Model(tf.keras.Model):
                                 prev_beta = self.get_layer(prev_layer_name).beta
                                 _layer_out = node.layer(_layer_in,beta = prev_beta, gamma=prev_gamma)
 
+
                             #print(node.layer.name)
 
                             if t-1==0:

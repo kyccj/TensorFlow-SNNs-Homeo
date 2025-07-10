@@ -173,7 +173,7 @@ class Neuron(tf.keras.layers.Layer):
         if conf.debug_surro_grad:
         #if False:
             self.writer = tf.summary.create_file_writer(config.path_tensorboard)
-        if conf.DF_all:
+        if conf.DF_all and conf.DF_all_debug:
         #if False:
             self.writer = tf.summary.create_file_writer(config.path_tensorboard)
 
@@ -1166,11 +1166,15 @@ class Neuron(tf.keras.layers.Layer):
                 im = tf.reduce_mean(im)
                 self.add_loss(conf.im_k*im)
         if conf.DF_all:
+            iter_counter = lib_snn.model.train_counter
             def write_params_DF(beta_val, gamma_val, sc_val, sc_mean_val):
-                with self.writer.as_default(step=lib_snn.model.train_counter):
+                with self.writer.as_default(step=iter_counter):
                     tf.summary.histogram(f"{self.name}_beta_dist", beta_val)
                     tf.summary.histogram(f"{self.name}_gamma_dist", gamma_val)
                     tf.summary.histogram(f"{self.name}_sc_dist", sc_val)
+                    # tf.summary.scalar(f"{self.name}_beta_scar", beta_val)
+                    # tf.summary.scalar(f"{self.name}_gamma_sacr", gamma_val)
+                    # tf.summary.scalar(f"{self.name}_sc_scar", sc_val)
                     tf.summary.scalar(f"{self.name}_sc_mean", sc_mean_val)
                     self.writer.flush()
             if len(self.dim)==4:
@@ -1192,10 +1196,21 @@ class Neuron(tf.keras.layers.Layer):
                     alpha = beta/(gamma+conf.reg_psp_eps)
                     mask = tf.greater_equal(mc_sc,mc_sc_mean)
                     alpha = tf.where(mask,alpha*conf.DF_all_true_weight,alpha*conf.DF_all_false_weight)
-                    loss = lib_snn.layers.l2_norm(beta/(gamma+conf.reg_psp_eps)-alpha,self.name)
+                    if conf.DF_all_loss == 'L2':
+                        loss = lib_snn.layers.l2_norm(beta/gamma-alpha,self.name)
+                    elif conf.DF_all_loss =='MSE':
+                        loss = tf.reduce_mean(tf.square(alpha-beta/gamma))
+                    elif conf.DF_all_loss == 'L1':
+                        loss = tf.reduce_mean(tf.abs(alpha-beta/gamma))
+                    elif conf.DF_all_loss == 'Huber':
+                        loss = tf.keras.losses.Huber()(y_true=alpha,y_pred=beta / (gamma + conf.reg_psp_eps))
                     loss = conf.DF_all_loss_weight * loss
                     self.add_loss(loss)
-                    tf.py_function(write_params_DF, [beta, gamma, mc_sc,mc_sc_mean_1],[])
+                    if conf.DF_all_debug:
+                        condition=tf.equal(tf.math.floormod(iter_counter,100),0)
+                        tf.cond(condition,
+                                lambda: tf.py_function(write_params_DF, [beta, gamma, mc_sc,mc_sc_mean_1],[]),
+                                lambda: tf.no_op())
 
 
 

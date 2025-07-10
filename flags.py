@@ -900,6 +900,8 @@ flags.DEFINE_float('cal_correlation_weight',1,'regularization - psp - BN_beta_ad
 
 #all-layer
 flags.DEFINE_bool('DF_all',False,'')
+flags.DEFINE_bool('DF_all_debug',False,'')
+flags.DEFINE_enum('DF_all_loss', 'L2', ['L2', 'L1', 'MSE','Huber'], 'surrogate gardient function of fire function')
 flags.DEFINE_float('DF_all_loss_weight',1,'')
 flags.DEFINE_float('DF_all_true_weight',1,'')
 flags.DEFINE_float('DF_all_false_weight',1,'')
