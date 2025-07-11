@@ -1167,10 +1167,11 @@ class Neuron(tf.keras.layers.Layer):
                 self.add_loss(conf.im_k*im)
         if conf.DF_all:
             iter_counter = lib_snn.model.train_counter
-            def write_params_DF(beta_val, gamma_val, sc_val, sc_mean_val):
+            def write_params_DF(beta_val, gamma_val, alpha_val, sc_val, sc_mean_val):
                 with self.writer.as_default(step=iter_counter):
                     tf.summary.histogram(f"{self.name}_beta_dist", beta_val)
                     tf.summary.histogram(f"{self.name}_gamma_dist", gamma_val)
+                    tf.summary.histogram(f"{self.name}_alpha_dist", alpha_val)
                     tf.summary.histogram(f"{self.name}_sc_dist", sc_val)
                     # tf.summary.scalar(f"{self.name}_beta_scar", beta_val)
                     # tf.summary.scalar(f"{self.name}_gamma_sacr", gamma_val)
@@ -1193,7 +1194,7 @@ class Neuron(tf.keras.layers.Layer):
                 mc_sc_mean_1 = tf.reduce_mean(mc_sc)
                 mc_sc_mean = tf.broadcast_to(mc_sc_mean, shape=(C,))
                 if beta is not None:
-                    alpha = beta/(gamma+conf.reg_psp_eps)
+                    alpha = beta/gamma
                     mask = tf.greater_equal(mc_sc,mc_sc_mean)
                     alpha = tf.where(mask,alpha*conf.DF_all_true_weight,alpha*conf.DF_all_false_weight)
                     if conf.DF_all_loss == 'L2':
@@ -1207,9 +1208,9 @@ class Neuron(tf.keras.layers.Layer):
                     loss = conf.DF_all_loss_weight * loss
                     self.add_loss(loss)
                     if conf.DF_all_debug:
-                        condition=tf.equal(tf.math.floormod(iter_counter,100),0)
+                        condition=tf.equal(tf.math.floormod(iter_counter,500),0)
                         tf.cond(condition,
-                                lambda: tf.py_function(write_params_DF, [beta, gamma, mc_sc,mc_sc_mean_1],[]),
+                                lambda: tf.py_function(write_params_DF, [beta, gamma,alpha, mc_sc,mc_sc_mean_1],[]),
                                 lambda: tf.no_op())
 
 

@@ -9,13 +9,14 @@ import os
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
 os.environ["NCCL_P2P_DISABLE"]="0"
 os.environ["CUDA_VISIBLE_DEVICES"]='9'
+
 #
 from config import config
 conf = config.flags
 
 # conf.debug_mode = True
 
-conf.debug_mode = True
+# conf.debug_mode = True
 conf.save_best_model_only = True
 conf.save_models_max_to_keep = 1
 
@@ -25,8 +26,8 @@ conf.DF_all_loss ='L1'
 # conf.DF_all_loss ='L2'
 # conf.DF_all_loss ='MSE'
 # conf.DF_all_loss ='Huber'
-conf.DF_all_loss_weight = 0.1
-conf.DF_all_true_weight = 1.3
+conf.DF_all_loss_weight = 1
+conf.DF_all_true_weight = 0.7
 conf.DF_all_false_weight = 1.5
 
 ######
